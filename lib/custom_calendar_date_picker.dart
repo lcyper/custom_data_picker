@@ -10,7 +10,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/widgets.dart';
 
 import 'package:hebrew_data_picker/class/custom_calendar_model.dart';
 
@@ -1034,7 +1034,9 @@ class _DayPickerState extends State<_DayPicker> {
 
     final int daysInMonth = _customCalendarModel.getDaysInMonth(
         DateTime(year, month), DateUtils.getDaysInMonth(year, month));
-    final int dayOffset = _customCalendarModel.getDayOffset(DateTime(year, month), DateUtils.firstDayOffset(year, month, localizations));
+    final int dayOffset = _customCalendarModel.getDayOffset(
+        DateTime(year, month),
+        DateUtils.firstDayOffset(year, month, localizations));
 
     final List<Widget> dayItems = _dayHeaders(headerStyle, localizations);
     // 1-based day of month, e.g. 1-31 for January, and 1-29 for February on
@@ -1052,8 +1054,8 @@ class _DayPickerState extends State<_DayPicker> {
                 !widget.selectableDayPredicate!(dayToBuild));
         final bool isSelectedDay =
             DateUtils.isSameDay(widget.selectedDate, dayToBuild);
-        final bool isToday =
-            DateUtils.isSameDay(widget.currentDate, dayToBuild);
+        final bool isToday = _customCalendarModel.isSameDay(widget.currentDate,
+            dayToBuild, DateUtils.isSameDay(widget.currentDate, dayToBuild));
 
         BoxDecoration? decoration;
         Color dayColor = enabledDayColor;
