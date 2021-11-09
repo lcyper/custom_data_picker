@@ -177,8 +177,9 @@ class _CustomCalendarDatePickerState extends State<CustomCalendarDatePicker> {
     super.initState();
     _customCalendarModel = widget.customCalendarModel;
     _mode = widget.initialCalendarMode;
-    _currentDisplayedMonthDate =
-        DateTime(widget.initialDate.year, widget.initialDate.month);
+    // lcyper: aded the day on [DateTime]
+    _currentDisplayedMonthDate = DateTime(widget.initialDate.year,
+        widget.initialDate.month, widget.initialDate.day);
     _selectedDate = widget.initialDate;
   }
 
@@ -953,8 +954,10 @@ class _DayPickerState extends State<_DayPicker> {
   void initState() {
     super.initState();
     _customCalendarModel = widget.customCalendarModel;
-    final int daysInMonth = DateUtils.getDaysInMonth(
-        widget.displayedMonth.year, widget.displayedMonth.month);
+    final int daysInMonth = _customCalendarModel.getDaysInMonth(
+        DateTime(widget.displayedMonth.year, widget.displayedMonth.month),
+        DateUtils.getDaysInMonth(
+            widget.displayedMonth.year, widget.displayedMonth.month));
     _dayFocusNodes = List<FocusNode>.generate(
       daysInMonth,
       (int index) =>
@@ -1034,7 +1037,9 @@ class _DayPickerState extends State<_DayPicker> {
 
     final int daysInMonth = _customCalendarModel.getDaysInMonth(
         DateTime(year, month), DateUtils.getDaysInMonth(year, month));
-    final int dayOffset = _customCalendarModel.getDayOffset(DateTime(year, month), DateUtils.firstDayOffset(year, month, localizations));
+    final int dayOffset = _customCalendarModel.getDayOffset(
+        DateTime(year, month),
+        DateUtils.firstDayOffset(year, month, localizations));
 
     final List<Widget> dayItems = _dayHeaders(headerStyle, localizations);
     // 1-based day of month, e.g. 1-31 for January, and 1-29 for February on
@@ -1076,12 +1081,12 @@ class _DayPickerState extends State<_DayPicker> {
             shape: BoxShape.circle,
           );
         }
-
+        String dayText = _customCalendarModel.dayToString(
+            day, localizations.formatDecimal(day));
         Widget dayWidget = Container(
           decoration: decoration,
           child: Center(
-            child: Text(localizations.formatDecimal(day),
-                style: dayStyle.apply(color: dayColor)),
+            child: Text(dayText, style: dayStyle.apply(color: dayColor)),
           ),
         );
 

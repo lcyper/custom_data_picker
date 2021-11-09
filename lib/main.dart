@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: ListView(
           children: [
-            Text(_selectedDate),
+            Center(child: Text(_selectedDate)),
             IconButton(
               onPressed: () async {
                 DateTime? _dateTime = await showDatePicker(
@@ -87,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 convertDayLetter: _convertDayLetter,
                 convertDaysInMonth: _convertDaysInMonth,
                 getDayOffset: _getDayOffset,
+                dayToString: _dayToString,
               ),
             ),
           ],
@@ -102,7 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _convertMothName(DateTime dateTime) {
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
-
     return _hebrewDateFormatter.formatMonth(jewishDate);
   }
 
@@ -117,7 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
         _dateTime.subtract(Duration(days: _dateTime.weekday - indexDay));
 
     JewishDate jewishDate = JewishDate()..setDate(_dateTime);
-
     return _hebrewDateFormatter.formatDayOfWeek(jewishDate);
   }
 
@@ -130,5 +129,10 @@ class _MyHomePageState extends State<MyHomePage> {
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
     jewishDate.setJewishDayOfMonth(1);
     return jewishDate.getDayOfWeek() - 1;
+  }
+
+  String _dayToString(int dayNumber) {
+    _hebrewDateFormatter.useGershGershayim = false;
+    return _hebrewDateFormatter.formatHebrewNumber(dayNumber);
   }
 }
