@@ -79,7 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
             CustomCalendarDatePicker(
               initialDate: DateTime.now(),
               firstDate: DateTime(2021),
-              lastDate: DateTime(2022), //DateTime
+              lastDate:
+                  DateTime(2022).subtract(const Duration(days: 1)), //DateTime
               onDateChanged: (dateTime) {},
               customCalendarModel: CustomCalendarModel(
                 convertMothName: _convertMothName,
@@ -88,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 convertDaysInMonth: _convertDaysInMonth,
                 getDayOffset: _getDayOffset,
                 dayToString: _dayToString,
+                isSameDay: _isSameDay,
               ),
             ),
           ],
@@ -101,8 +103,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  bool _isSameDay(DateTime currentDate, DateTime dayToBuild) {
+    JewishDate _currentDateInJewishDate = JewishDate()..setDate(currentDate);
+    JewishDate _dayToBuildInCurrentJewishDate = JewishDate()
+      ..setDate(dayToBuild);
+
+    bool _isTheSame = _currentDateInJewishDate.getJewishYear() ==
+            _dayToBuildInCurrentJewishDate.getJewishYear() &&
+        _currentDateInJewishDate.getJewishMonth() ==
+            _dayToBuildInCurrentJewishDate.getJewishMonth() &&
+        dayToBuild.day == _currentDateInJewishDate.getJewishDayOfMonth();
+    return _isTheSame;
+    int _diference =
+        _currentDateInJewishDate.compareTo(_dayToBuildInCurrentJewishDate);
+
+    return _diference == 0 ? true : false;
+
+    // return
+    //   currentDate.year == dayToBuild.year &&
+    //   currentDate.month == dayToBuild.month &&
+    //   currentDate.day == dayToBuild.day;
+    return false;
+  }
+
   String _convertMothName(DateTime dateTime) {
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
+    if (jewishDate.getJewishDayOfMonth() >= 17) {
+      jewishDate.setJewishMonth(jewishDate.getJewishMonth() + 1);
+    }
     return _hebrewDateFormatter.formatMonth(jewishDate);
   }
 
