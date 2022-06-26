@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:custom_data_picker/class/custom_calendar_model.dart';
 import 'package:custom_data_picker/custom_calendar_date_picker.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kosher_dart/kosher_dart.dart';
 
 void main() {
@@ -19,6 +20,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(),
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('he'),
+      ],
     );
   }
 }
@@ -54,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   firstDate: DateTime(DateTime.now().year - 1),
                   lastDate: DateTime(DateTime.now().year + 1)
                       .subtract(const Duration(days: 1)),
+                  locale: const Locale('he'),
+                  textDirection: TextDirection.rtl,
                 );
                 if (dateTime == null) return;
                 _selectedDate = dateTime.toString();
@@ -77,19 +85,27 @@ class _MyHomePageState extends State<MyHomePage> {
             //   firstDate: DateTime(2021),
             //   lastDate: DateTime(2022), //DateTime
             // ),
-            CustomCalendarDatePicker(
-              initialDate: DateTime.now(),
-              firstDate: DateTime(DateTime.now().year - 1),
-              lastDate: DateTime(DateTime.now().year + 1)
-                  .subtract(const Duration(days: 1)),
-              onDateChanged: (dateTime) {},
-              customCalendarModel: CustomCalendarModel(
-                convertMothName: _convertMothName,
-                convertYear: _convertYear,
-                convertDayLetter: _convertDayLetter,
-                convertDaysInMonth: _convertDaysInMonth,
-                getDayOffset: _getDayOffset,
-                isSameDay: _isSameDay,
+            Directionality(
+              // for hebrew calendar
+              textDirection: TextDirection.rtl,
+              child: CustomCalendarDatePicker(
+                initialDate: DateTime.now(),
+                firstDate: DateTime(DateTime.now().year - 1),
+                lastDate: DateTime(DateTime.now().year + 1)
+                    .subtract(const Duration(days: 1)),
+                onDateChanged: (dateTime) {
+                  // TODO: continuar, hay q hacer q se seleccione la fecha correcta y luego convertirla
+                  print('onDateChanged: $dateTime');
+                },
+                customCalendarModel: CustomCalendarModel(
+                  mothName: _convertMothName,
+                  year: _convertYear,
+                  dayName: _convertDayName,
+                  daysInMonth: _daysInMonth,
+                  getDayOffset: _getDayOffset,
+                  isSameDay: _isSameDay,
+                  dayToString: _dayToString,
+                ),
               ),
             ),
           ],
@@ -127,28 +143,55 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String _convertMothName(DateTime dateTime) {
-    JewishDate jewishDate = JewishDate()..setDate(dateTime);
-    if (jewishDate.getJewishDayOfMonth() >= 17) {
-      jewishDate.setJewishMonth(jewishDate.getJewishMonth() + 1);
+    // print('dateTime: $dateTime');
+    //     String formatMonthYear(DateTime date) {
+    //   final String year = formatYear(date);
+    //   final String month = _months[date.month - DateTime.january];
+    //   return '$month $year';
+    // }
+    final String year = _convertYear(dateTime.year);
+    if (dateTime.day != 1) {
+      dateTime = dateTime.subtract(Duration(days: dateTime.day - 1));
     }
-    return _hebrewDateFormatter.formatMonth(jewishDate);
-  }
-
-  int _convertYear(int year) {
-    JewishDate jewishDate = JewishDate()..setGregorianYear(year);
-    return jewishDate.getJewishYear();
-  }
-
-  String _convertDayLetter(int indexDay) {
-    DateTime dateTime = DateTime.now();
-    dateTime = dateTime.subtract(Duration(days: dateTime.weekday - indexDay));
-
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
 
-    return _hebrewDateFormatter.formatDayOfWeek(jewishDate);
+    // volver a revisar bien esto x q da error y a veces saltea meses
+    if (jewishDate.getJewishDayOfMonth() >= 21) {
+      // es menos de 12 meses o es año con dos adar
+      if (jewishDate.getJewishMonth() < 12 ||
+          (jewishDate.getJewishMonth() < 13 && jewishDate.isJewishLeapYear())) {
+        jewishDate.setJewishMonth(jewishDate.getJewishMonth() + 1);
+      } else {
+        jewishDate.setJewishMonth(1);
+      }
+    }
+    final String month = _hebrewDateFormatter.formatMonth(jewishDate);
+    return '$month $year';
   }
 
-  int _convertDaysInMonth(DateTime dateTime) {
+  String _convertYear(int year) {
+    JewishDate jewishDate = JewishDate()..setGregorianYear(year);
+    _hebrewDateFormatter.useGershGershayim = true;
+    return _hebrewDateFormatter.formatHebrewNumber(jewishDate.getJewishYear());
+    //  ;
+  }
+
+  String _convertDayName(int indexDay) {
+    const List<String> hebrewDaysOfWeek = [
+      "ראשון",
+      "שני",
+      "שלישי",
+      "רביעי",
+      "חמישי",
+      "שישי",
+      "שבת"
+    ];
+    return hebrewDaysOfWeek[indexDay];
+    _hebrewDateFormatter.useGershGershayim = true;
+    return _hebrewDateFormatter.formatHebrewNumber(indexDay + 1);
+  }
+
+  int _daysInMonth(DateTime dateTime) {
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
     return jewishDate.getDaysInJewishMonth();
   }
@@ -157,5 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
     JewishDate jewishDate = JewishDate()..setDate(dateTime);
     jewishDate.setJewishDayOfMonth(1);
     return jewishDate.getDayOfWeek() - 1;
+  }
+
+  String _dayToString(int dayNumber) {
+    _hebrewDateFormatter.useGershGershayim = false;
+    return _hebrewDateFormatter.formatHebrewNumber(dayNumber);
   }
 }

@@ -801,9 +801,9 @@ class _MonthPickerState extends State<_MonthPicker> {
   @override
   Widget build(BuildContext context) {
     final String previousTooltipText =
-        '${_localizations.previousMonthTooltip} ${_localizations.formatMonthYear(_previousMonthDate)}';
+        '${_localizations.previousMonthTooltip} ${_customCalendarModel.getMothName(_previousMonthDate, _localizations.formatMonthYear(_previousMonthDate))}';
     final String nextTooltipText =
-        '${_localizations.nextMonthTooltip} ${_localizations.formatMonthYear(_nextMonthDate)}';
+        '${_localizations.nextMonthTooltip} ${_customCalendarModel.getMothName(_nextMonthDate, _localizations.formatMonthYear(_nextMonthDate))}';
     final Color controlColor =
         Theme.of(context).colorScheme.onSurface.withOpacity(0.60);
 
@@ -1055,8 +1055,10 @@ class _DayPickerState extends State<_DayPicker> {
             dayToBuild.isBefore(widget.firstDate) ||
             (widget.selectableDayPredicate != null &&
                 !widget.selectableDayPredicate!(dayToBuild));
-        final bool isSelectedDay =
-            DateUtils.isSameDay(widget.selectedDate, dayToBuild);
+        final bool isSelectedDay = _customCalendarModel.isSameDay(
+            widget.selectedDate,
+            dayToBuild,
+            DateUtils.isSameDay(widget.selectedDate, dayToBuild));
         final bool isToday = _customCalendarModel.isSameDay(widget.currentDate,
             dayToBuild, DateUtils.isSameDay(widget.currentDate, dayToBuild));
 
@@ -1276,7 +1278,7 @@ class _YearPickerState extends State<YearPicker> {
         year < widget.firstDate.year || year > widget.lastDate.year;
     const double decorationHeight = 36.0;
     const double decorationWidth = 72.0;
-    final String showYear = _customCalendarModel.getYear(year).toString();
+    final String showYear = _customCalendarModel.getYear(year);
 
     final Color textColor;
     if (isSelected) {
