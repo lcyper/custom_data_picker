@@ -12,7 +12,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter/widgets.dart';
 
-import 'package:hebrew_data_picker/class/custom_calendar_model.dart';
+import 'package:custom_data_picker/class/custom_calendar_model.dart';
 
 // import 'color_scheme.dart';
 // import 'date.dart';
@@ -574,7 +574,7 @@ class _MonthPickerState extends State<_MonthPicker> {
     if (widget.initialMonth != oldWidget.initialMonth &&
         widget.initialMonth != _currentMonth) {
       // We can't interrupt this widget build with a scroll, so do it next frame
-      WidgetsBinding.instance!.addPostFrameCallback(
+      WidgetsBinding.instance.addPostFrameCallback(
         (Duration timeStamp) => _showMonth(widget.initialMonth, jump: true),
       );
     }
